@@ -1,7 +1,8 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const User = require("./model");
-const Image = require("../image/model")
+const Image = require("../image/model");
+const { toJWT, toData } = require("../auth/jwt");
 
 const router = express.Router();
 
@@ -18,7 +19,12 @@ router.post("/user", async (req, res, next) => {
       });
     } else {
       const createUser = await User.create(userCredentials);
-      res.send(createUser);
+      const jwt = toJWT({ userId: createUser.id });
+      res.send({
+        jwt,
+        id: createUser.id,
+        username: createUser.username
+      });
     }
   } catch (error) {
     next(error);

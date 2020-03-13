@@ -24,6 +24,40 @@ router.post("/images", auth, async (req, res, next) => {
   }
 });
 
+router.put(
+  '/images/:id', auth, // path with an id parameter
+  async (request, response, next) => { // handler callback
+    try {
+      // deicde what parameters you want
+      const { id } = request.params
+
+      // find the record you want to change with a promise
+      const image = await Image.findByPk(id)
+
+      // update that one record with a promise
+      const updated = await image.update(request.body)
+
+      // send object as response
+      response.send(updated)
+    } catch (error) {
+      next(error)
+    }
+  }
+)
+
+router.delete("/images/:id", auth, (req, res, next) => {
+  Image.destroy({ where: { id: req.params.id } })
+    .then(number => {
+      if (number === 0) {
+        res.status(404).end();
+      } else {
+        // had to use json and not send because number is not an json object (could have used send({number}))
+        res.status(202).json(number);
+      }
+    })
+    .catch(next);
+});
+
 module.exports = router;
 
 // EXAMPLE from David, writing the async function first and using it as a callback
